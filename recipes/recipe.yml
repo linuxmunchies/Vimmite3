@@ -35,15 +35,8 @@ modules:
         - ncdu
         - fd-find
         - tldr
-        - p7zip
         - lsd
         - inxi
-        - tmux
-        # Multimedia Codecs & Libraries
-        - x264
-        - x265
-        - gstreamer1-plugins-ugly
-        - gstreamer1-plugins-bad-freeworld
         # Media Applications
         - vlc
         - mpv
