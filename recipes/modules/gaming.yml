@@ -11,13 +11,6 @@ modules:
         - mangohud.x86_64
         - mangohud.i686
 
-  # Steam weakly recommends GameMode. Remove it in a separate transaction so
-  # DNF cannot satisfy that recommendation again during the install above.
-  - type: dnf
-    remove:
-      packages:
-        - gamemode
-
   # Lossless Scaling is not in a stable Fedora repository. Verify the pinned
   # upstream RPM before installing it into the image.
   - type: script
