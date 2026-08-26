@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root_source="$(findmnt --noheadings --output SOURCE --target / 2>/dev/null || true)"
+root_type="$(findmnt --noheadings --output FSTYPE --target / 2>/dev/null || true)"
+
+# composefs assembles an immutable overlay root in the initramfs. The generic
+# systemd remount helper cannot reconfigure that overlay and would only mark the
+# otherwise healthy boot as degraded. Preserve the upstream helper everywhere
+# else so real root and API-filesystem remount failures remain visible.
+if [[ "${root_source}" == "composefs" && "${root_type}" == "overlay" ]]; then
+    exit 0
+fi
+
+exec /usr/lib/systemd/systemd-remount-fs

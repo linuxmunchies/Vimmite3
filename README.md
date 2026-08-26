@@ -15,7 +15,7 @@ The development image currently includes:
 
 - KDE Plasma, Firefox, and Universal Blue's Fedora 44 Kinoite baseline;
 - AMD and Intel graphics support only;
-- native Steam, GameMode, MangoHud, ProtonPlus, Bottles, and Lossless Scaling;
+- native Steam, MangoHud, ProtonPlus, Bottles, and Lossless Scaling;
 - controller rules for Steam Input and upstream PlayStation/Bluetooth drivers;
 - a QEMU/libvirt backend and the virt-manager Flatpak;
 - DisplayLink userspace plus EVDI compiled for the exact image kernel;

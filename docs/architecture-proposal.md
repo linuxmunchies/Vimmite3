@@ -72,7 +72,7 @@ conceptual boundaries first; exact file names can be chosen during the rewrite.
 - Upstream `hid_playstation` for the primary DualShock-compatible receiver.
 - Upstream Bluetooth HID support for Xbox controllers.
 - No `xone` module because the Microsoft USB/RF adapter is not used.
-- No global GPU tuning or `gpu_device=0` GameMode configuration.
+- No global GPU-index or performance-policy tuning.
 - Remove the standalone `nvidia-gpu-firmware` package after a build-time
   dependency check confirms it remains unneeded.
 
@@ -111,18 +111,17 @@ Recommended host packages:
 
 - native Steam;
 - `steam-devices`;
-- `gamemode`;
 - `mangohud` (including the required 32-bit library path);
 - AMD and Intel 64-bit and 32-bit Vulkan drivers already selected by the base.
 
-Fedora 44 publishes GameMode, MangoHud, Gamescope, and `steam-devices` directly.
+Fedora 44 publishes MangoHud, Gamescope, and `steam-devices` directly.
 Steam itself is nonfree. The selected `kinoite-main` base already enables its
 Fedora Multimedia repository, which supplies the native Steam package and its
 multilib dependencies. Vimmite3 uses that inherited repository and adds no
 gaming or Nvidia repository of its own.
 
 Native Steam is the initial recommendation because it most closely matches the
-working Bazzite arrangement and keeps host GameMode, MangoHud, external game
+working Bazzite arrangement and keeps host MangoHud, external game
 drives, and Lossless Scaling integration straightforward. Flatpak Steam remains
 a viable fallback, but it requires runtime-version-matched Vulkan extensions
 and additional filesystem/environment overrides for Lossless Scaling.
@@ -146,7 +145,6 @@ Sources:
 - [Fedora `steam-devices`](https://packages.fedoraproject.org/pkgs/steam-devices/steam-devices/)
 - [Fedora Gamescope](https://packages.fedoraproject.org/pkgs/gamescope/gamescope/)
 - [Fedora MangoHud](https://packages.fedoraproject.org/pkgs/mangohud/mangohud/)
-- [Fedora GameMode](https://packages.fedoraproject.org/pkgs/gamemode/gamemode/)
 - [`lsfg-vk` installation guide](https://github.com/PancakeTAS/lsfg-vk/wiki/Installation-Guide)
 
 ### 4. Virtualization baseline
@@ -186,7 +184,9 @@ Sources:
 Flatpaks should remain system-scoped so the required application set is
 available to every user. The user-scoped Flathub remote can remain available for
 optional applications. BlueBuild's current `default-flatpaks` module reconciles
-the declared list at boot, so removals from that list must be intentional.
+the declared list at boot, so removals from that list must be intentional. The
+system reconciliation service retries transient first-boot failures because the
+network-online target can be reached before DNS is usable.
 
 ### 6. Shell design
 
@@ -210,8 +210,8 @@ only while every retained deployment includes Zsh.
   live test remains stable.
 - Keep the HyperX source at 90% through a user-session rule/service that selects
   the device by stable properties rather than a transient PipeWire object ID.
-- Retain `hid_apple fnmode=2` only after confirming it is actually wanted on all
-  target systems.
+- Retain `hid_apple fnmode=2` for the EPOMAKER EA75 and regenerate the image
+  initramfs so the option applies even if the driver loads during early boot.
 - Do not copy the old global low-latency PipeWire quantum until its benefit and
   suspend/power cost are measured.
 
@@ -258,7 +258,7 @@ Source: [rpm-ostree administrator handbook](https://coreos.github.io/rpm-ostree/
    shared kernel arguments.
 4. Test the HP dock at three displays, including disconnect/reconnect, reboot,
    suspend/resume, and login/logout.
-5. Test native Steam, MangoHud, GameMode, ProtonPlus, Bottles, the game drive,
+5. Test native Steam, MangoHud, ProtonPlus, Bottles, the game drive,
    and the DualShock-compatible receiver before adding optional gaming pieces.
 6. Test virt-manager against `qemu:///system`, a UEFI VM, a TPM-backed VM, NAT,
    shutdown, and resume.

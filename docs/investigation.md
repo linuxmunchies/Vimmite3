@@ -47,7 +47,7 @@ observations separately from decisions and keeps unresolved design work visible.
 - The locally installed BlueBuild CLI validates the recipe, and a complete
   unsigned local build passed on 2026-08-25.
 - Artifact inspection confirmed the standard Fedora kernel, Firefox, Steam,
-  both GameMode/MangoHud architectures, AMD/Intel Vulkan userspace, controller
+  both MangoHud architectures, AMD/Intel Vulkan userspace, controller
   rules, QEMU/libvirt, the requested editors, and the intended Flatpak manifest.
 - Gamescope and NVIDIA-specific RPMs are absent. The inherited
   `fedora-multimedia` repository supplies Steam, avoiding an additional Steam
@@ -73,7 +73,7 @@ observations separately from decisions and keeps unresolved design work visible.
 - virt-manager is present as a Flatpak, but the inspected host did not have a
   usable libvirt/QEMU backend.
 - The game drive is automatically mounted under `/run/media/system/gamedrive`.
-- Sunshine, GameMode, and a host ROCm stack were not detected in the initial
+- Sunshine and a host ROCm stack were not detected in the initial
   inventory.
 - The microphone lock is required but currently broken. Live inspection found
   Vesktop using `application.process.binary = "vesktop.bin"` and

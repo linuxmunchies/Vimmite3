@@ -12,7 +12,7 @@ upstream guidance remain open until those sources are verified.
 | `main.sh` | Root-run orchestration, logging, cleanup, and progress |
 | `01-system-base.sh` | RPM Fusion, codecs, Snapper, utilities, containers, and virtualization |
 | `02-media-and-drivers.sh` | Multimedia packages, AMD/Intel acceleration, and fonts |
-| `03-gaming.sh` | Steam stack, GameMode, PipeWire tuning, and a fixed game-drive mount |
+| `03-gaming.sh` | Steam stack, gaming tuning, and a fixed game-drive mount |
 | `04-user-environment.sh` | Flatpaks, Brave, Zsh, fonts, keyboard, audio, and user directories |
 | `Archives/Vimmora_V5_old.sh` | Earlier ROCm, Kickstart Neovim, application, and directory ideas |
 
@@ -24,7 +24,7 @@ setup. Much of the current gaming integration instead comes from Bazzite.
 
 These are confirmed requirements. Their old implementation is not approved.
 
-- A complete gaming baseline: Steam, MangoHud, GameMode, Vulkan support, Steam
+- A complete gaming baseline: Steam, MangoHud, Vulkan support, Steam
   controller permissions, ProtonPlus, Bottles, and Lossless Scaling.
 - Controller support for the Chicken Run DualShock 4-compatible receiver,
   Bluetooth Xbox controllers, and a future Steam Controller.
@@ -53,8 +53,8 @@ These appear useful but need pruning against the base image and actual use.
 - Fira Code and JetBrains Mono Nerd Fonts, provided reproducibly rather than
   downloaded from an unpinned latest release at install time. These two families
   are confirmed as sufficient.
-- The `hid_apple fnmode=2` setting, because it is active on the current host;
-  confirm whether every target machine should inherit it.
+- The `hid_apple fnmode=2` setting required for correct EPOMAKER EA75 function
+  key behavior, including it in the regenerated image initramfs.
 
 ## Already replaced by a better mechanism
 
@@ -82,8 +82,8 @@ These appear useful but need pruning against the base image and actual use.
 - CPU detection using `lscpu` inside an image build cannot select runtime GPU
   support for a portable AMD/Intel image. Both supported hardware paths must be
   assembled intentionally.
-- Hard-coding `gpu_device=0` and AMD performance policy in global GameMode
-  configuration is incompatible with Intel and multi-GPU portability.
+- Hard-coding `gpu_device=0` and AMD performance policy globally is
+  incompatible with Intel and multi-GPU portability.
 - The installed `xone` out-of-tree kernel module is unnecessary for the
   currently stated Bluetooth-only Xbox use unless a later test proves otherwise.
 - Hard-coding the hostname to `VimmoraV1` does not belong in a reusable image.
@@ -152,7 +152,7 @@ These appear useful but need pruning against the base image and actual use.
 
 Vimmora was primarily a mutable Fedora workstation bootstrap, not the source of
 the current Bazzite experience. Its strongest migration candidates are intent:
-virtualization, GameMode, Steam device permissions, multimedia, host utilities,
+virtualization, Steam device permissions, multimedia, host utilities,
 fonts, shell ergonomics, and a handful of applications. The replacement gaming
 stack must be designed mainly from the observed Bazzite dependency inventory and
 current upstream sources, not reconstructed from Vimmora.

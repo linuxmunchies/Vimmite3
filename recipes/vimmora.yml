@@ -14,4 +14,7 @@ modules:
   - from-file: modules/virtualization.yml
   - from-file: modules/configuration.yml
   - from-file: modules/flatpaks.yml
+  # Rebuild after all image files are present so the hid_apple options are
+  # available if the driver is loaded during early boot.
+  - type: initramfs
   - type: signing

@@ -13,8 +13,9 @@ until the blocking checks pass.
 - [x] Firefox is present; Gamescope and NVIDIA-specific packages are absent.
 - [x] `kmod-evdi-$(kernel version)`, `displaylink`, and `libevdi` are present.
 - [x] EVDI's `vermagic` exactly matches the image kernel.
-- [x] Steam, 32/64-bit GameMode/MangoHud, controller rules, and `lsfg-vk` are
-      present.
+- [x] Steam, 32/64-bit MangoHud, controller rules, and `lsfg-vk` are present.
+- [x] `modprobe -c` reports `options hid_apple fnmode=2`, and the image
+      initramfs contains the setting.
 - [ ] The previous Bazzite recipe still builds as a fallback.
 
 Verified locally on 2026-08-25 against image
@@ -29,7 +30,8 @@ artifact verification, not approval to install or rebase.
       current primary host.
 - [ ] Installer completes without the previously observed grey screen.
 - [ ] First reboot reaches SDDM and Plasma on every connected native display.
-- [ ] The boot menu retains a previous deployment and it can be booted.
+- [ ] After the first image update, `rpm-ostree status` retains the prior
+      deployment and it can be selected from the boot menu.
 - [ ] `rpm-ostree status` reports the expected signed image origin/digest.
 - [ ] Btrfs root/home layout and encryption match the chosen installer plan.
 
@@ -49,8 +51,8 @@ artifact verification, not approval to install or rebase.
       rendering.
 - [ ] Native Steam launches and sees internal/external game libraries.
 - [ ] A native Linux game and a Proton game launch.
-- [ ] `gamemoderun` reports active GameMode without global GPU-index tuning.
 - [ ] MangoHud works for both a 64-bit game and a 32-bit/Proton title.
+- [ ] The EPOMAKER EA75 function row behaves normally with `fnmode=2`.
 - [ ] ProtonPlus can install a compatibility tool visible to Steam.
 - [ ] Bottles creates and launches a disposable test bottle.
 - [ ] Lossless Scaling's Vulkan layer is discoverable and passes one real game
