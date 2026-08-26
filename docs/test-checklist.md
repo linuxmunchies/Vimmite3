@@ -1,8 +1,7 @@
 # Vimmite3 physical test checklist
 
 Record the image digest, machine, firmware version, Secure Boot state, and test
-date for every run. Do not promote the Kinoite recipe over the fallback recipe
-until the blocking checks pass.
+date for every run. Do not promote a build until the blocking checks pass.
 
 ## Build artifact gate
 
@@ -16,8 +15,6 @@ until the blocking checks pass.
 - [x] Steam, 32/64-bit MangoHud, controller rules, and `lsfg-vk` are present.
 - [x] `modprobe -c` reports `options hid_apple fnmode=2`, and the image
       initramfs contains the setting.
-- [ ] The previous Bazzite recipe still builds as a fallback.
-
 Verified locally on 2026-08-25 against image
 `sha256:71fedc25c0c0fa5058770aef2575fbca2535688200562bffed17d556b0e24362`.
 The artifact uses kernel `7.1.10-200.fc44.x86_64`; EVDI reports the same

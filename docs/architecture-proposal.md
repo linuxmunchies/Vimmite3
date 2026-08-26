@@ -1,7 +1,7 @@
 # Vimmite3 architecture proposal
 
-Status: approved for a parallel development recipe. The existing Bazzite recipe
-remains available as a fallback and no running machine has been rebased.
+Status: implemented as the sole Vimmite3 recipe. The previous Bazzite recipe
+has been retired after successful installation and update testing on hardware.
 
 ## Recommended foundation
 

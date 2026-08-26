@@ -40,8 +40,8 @@ observations separately from decisions and keeps unresolved design work visible.
 
 ## Current repository observations
 
-- `recipes/vimmora.yml` now inherits `ghcr.io/ublue-os/kinoite-main:44`; the
-  previous Bazzite recipe remains available as a migration fallback.
+- `recipes/vimmora.yml` now inherits `ghcr.io/ublue-os/kinoite-main:44`; it is
+  the sole supported Vimmite3 image recipe.
 - The replacement is split into explicit hardware, host package, gaming,
   virtualization, configuration, Flatpak, and signing modules.
 - The locally installed BlueBuild CLI validates the recipe, and a complete
@@ -55,8 +55,7 @@ observations separately from decisions and keeps unresolved design work visible.
 - The corrected PipeWire-Pulse rule matches Vesktop's observed process
   properties, and a user path unit restores the HyperX microphone to 90% when
   relevant state changes.
-- The workflow builds both the Kinoite development recipe and retained Bazzite
-  fallback recipe. The fallback recipe still needs a complete build test.
+- The workflow builds and publishes the Kinoite-based Vimmite3 recipe.
 
 ## Current host observations
 
@@ -203,7 +202,6 @@ investigation scope.
 - Complete the physical checklist on AMD iGPU, Intel/Arc, and Ryzen AI MAX
   hardware, including first reboot, suspend/resume, gaming, controller,
   virtualization, and dock-display acceptance tests.
-- Build the retained Bazzite recipe once to prove the fallback remains usable.
 - Test the Ryzen AI MAX profile with a real AI workload before deciding whether
   the deprecated GTT argument should survive.
 - Decide on a personal-data backup policy separately from atomic deployment

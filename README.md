@@ -26,12 +26,9 @@ project. DisplayLink monitor layouts, controllers, the EPOMAKER keyboard,
 HyperX audio, real game workloads, and suspend/resume still need to be checked
 on each machine where those features matter.
 
-Two images are published:
-
-| Image | Purpose |
-| --- | --- |
-| `ghcr.io/linuxmunchies/vimmite3-kinoite:latest` | Primary portable AMD/Intel Fedora Kinoite image |
-| `ghcr.io/linuxmunchies/vimmite3-bazzite:latest` | Retained Bazzite fallback during the migration |
+The published image is
+`ghcr.io/linuxmunchies/vimmite3-kinoite:latest`: the portable AMD/Intel Fedora
+Kinoite image used by Vimmite3 systems.
 
 ## What is in Vimmite3?
 
@@ -297,7 +294,7 @@ less docs/test-checklist.md
 
 ## CI, publication, and signing
 
-[`.github/workflows/build.yml`](.github/workflows/build.yml) builds both recipes
+[`.github/workflows/build.yml`](.github/workflows/build.yml) builds Vimmite3
 on every non-documentation push, every pull request, manual dispatch, and the
 daily schedule. Successful `main` builds publish to GHCR.
 
@@ -325,12 +322,10 @@ gh run watch --repo linuxmunchies/Vimmite3 <run-id> --exit-status
 
 ```text
 recipes/vimmora.yml              Primary Kinoite recipe
-recipes/recipe.yml               Retained Bazzite fallback recipe
 recipes/modules/                 Hardware, packages, gaming, virtualization,
                                  configuration, and Flatpak modules
 files/scripts/                   Pinned installers and EVDI build logic
 files/vimmora/                   Files copied into the primary image
-files/system/                    Files copied into the fallback image
 files/justfiles/vimmora.just     Vimmite3 ujust commands
 docs/post-install.md             Optional profile instructions
 docs/test-checklist.md           Physical acceptance checklist
