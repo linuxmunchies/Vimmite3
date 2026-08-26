@@ -1,0 +1,19 @@
+# Vimmora's conservative Zim baseline. This file is copied to ~/.zimrc only if
+# the user does not already have one.
+zmodule environment
+zmodule git
+zmodule input
+zmodule termtitle
+zmodule utility
+
+zmodule duration-info
+zmodule git-info
+zmodule prompt-pwd
+zmodule asciiship
+
+zmodule zsh-users/zsh-completions --fpath src
+zmodule completion
+zmodule zsh-users/zsh-syntax-highlighting
+zmodule zsh-users/zsh-history-substring-search
+zmodule zsh-users/zsh-autosuggestions
+

@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
+
+type: dnf
+install:
+  packages:
+    # Shell, editors, and command-line utilities
+    - zsh
+    - git
+    - vim-enhanced
+    - neovim
+    - bat
+    - kitty
+    - ncdu
+    - fd-find
+    - tldr
+    - lsd
+    - inxi
+    - jq
+    - unzip
+
+    # Media tools retained from the existing recipe
+    - vlc
+    - mpv
+    - yt-dlp
+    - mediainfo
+    - mixxx
+    - flac
+
+    # Container tooling; Distrobox and Podman are already supplied by the base
+    - podman-compose
+

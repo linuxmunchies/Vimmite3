@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/module-list-v1.json
+
+modules:
+  - type: dnf
+    install:
+      packages:
+        - qemu-kvm
+        - libvirt-daemon-kvm
+        - libvirt-daemon-config-network
+        - libvirt-daemon-config-nwfilter
+        - libvirt-client
+        - virt-install
+        - edk2-ovmf
+        - swtpm
+
+  # Use libvirt's modular socket-activated daemons. Do not enable legacy
+  # libvirtd.service or copy Bazzite's one-shot compatibility service.
+  - type: systemd
+    system:
+      enabled:
+        - virtqemud.socket
+        - virtnetworkd.socket
+        - virtstoraged.socket
+        - virtsecretd.socket
+        - virtnodedevd.socket
+        - virtnwfilterd.socket
+      disabled:
+        # The driver is present on every machine, but only dock hosts should
+        # load evdi and run the proprietary daemon.
+        - displaylink.service
+        # Only the machine with labeled internal data/game drives opts in.
+        - ublue-os-media-automount.service
+    user:
+      enabled:
+        - vimmora-hyperx-mic-volume.path

@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
+
+type: default-flatpaks
+configurations:
+  - notify: true
+    scope: system
+    repo:
+      title: Flathub (system)
+    install:
+      # Browsers and application discovery
+      - com.brave.Browser
+      - io.github.kolunmi.Bazaar
+
+      # Productivity and communication
+      - org.onlyoffice.desktopeditors
+      - md.obsidian.Obsidian
+      - dev.zed.Zed
+      - org.telegram.desktop
+      - dev.vencord.Vesktop
+      - org.signal.Signal
+      - re.fossplant.songrec
+
+      # Media and creation
+      - org.gimp.GIMP
+      - org.kde.gwenview
+      - com.obsproject.Studio
+      - org.kde.kdenlive
+      - org.blender.Blender
+      - org.kde.krita
+      - org.jeffvli.feishin
+      - net.mediaarea.MediaInfo
+
+      # Gaming
+      - com.vysp3r.ProtonPlus
+      - com.usebottles.bottles
+
+      # System utilities and virtualization
+      - org.virt_manager.virt-manager
+      - com.github.tchx84.Flatseal
+      - net.nokyan.Resources
+      - io.github.dimtpap.coppwr
+      - com.rustdesk.RustDesk
+      - it.mijorus.gearlever
+      - com.github.zocker_160.SyncThingy
+
+  - scope: user
+    repo:
+      title: Flathub (user)
+

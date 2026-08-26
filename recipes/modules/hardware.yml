@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/module-list-v1.json
+
+modules:
+  # UBlue's main-kernel akmods image currently omits the "extra" EVDI group.
+  # Build EVDI from Negativo17's akmod against the exact image kernel instead.
+  - type: script
+    scripts:
+      - build-evdi.sh
+
+  - type: dnf
+    install:
+      packages:
+        - steam-devices
+        - mesa-vulkan-drivers.i686
+    remove:
+      packages:
+        # The target fleet is AMD/Intel only. Generic upstream kernel modules
+        # remain part of Fedora's standard kernel.
+        - nvidia-gpu-firmware
+
+  # Preserve Bazzite's useful labeled-drive automount behavior without making
+  # it active on every target. The matching ujust command opts a machine in.
+  - type: dnf
+    repos:
+      cleanup: true
+      copr:
+        - ublue-os/packages
+    install:
+      packages:
+        - ublue-os-media-automount-udev

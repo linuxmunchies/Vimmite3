@@ -1,0 +1,268 @@
+# Vimmite3 architecture proposal
+
+Status: approved for a parallel development recipe. The existing Bazzite recipe
+remains available as a fallback and no running machine has been rebased.
+
+## Recommended foundation
+
+Use `ghcr.io/ublue-os/kinoite-main:44` as the first non-Bazzite development
+base.
+
+This is a deliberate intermediate foundation, not a claim that Universal Blue
+must remain underneath Vimmite3 forever. It removes Bazzite's gaming policy and
+custom OGC kernel while retaining a maintained KDE Atomic desktop, Fedora's
+standard kernel, codecs, Flathub setup, Distrobox, `ujust`, device rules, image
+update services, and the Universal Blue kernel-signing chain.
+
+Pin the Fedora major release (`44`) during development instead of following the
+floating `latest` tag. Major-version upgrades should be reviewed and tested as
+pull requests. Routine rebuilds can still pick up refreshed Fedora 44 content.
+
+### Why this is the least risky current option
+
+- Universal Blue deliberately retained `kinoite-main` because Aurora and
+  Bazzite consume it. That is stronger maintenance evidence than a base that is
+  merely published but not widely exercised.
+- The standard kernel reduces the OGC-specific suspend and portability surface.
+  DisplayLink remains possible by compiling Negativo17's Fedora EVDI akmod for
+  the exact image kernel during composition.
+- The base already solves the low-value but failure-prone desktop integration
+  work: complete multimedia codecs, AMD and Intel graphics userspace,
+  thumbnails, Flathub, Distrobox, update services, and common device rules.
+- The selected `kinoite-main` output has no proprietary Nvidia driver stack.
+  Vimmite3 will not select an Nvidia image variant, install Nvidia packages, add
+  an Nvidia repository, or ship Nvidia-specific configuration.
+
+The generic Fedora kernel still contains upstream drivers for many hardware
+families, including Nouveau. Stripping those individual modules would require a
+custom kernel and would work against the portability and maintenance goals. We
+can, however, remove the separately packaged `nvidia-gpu-firmware`, which is not
+required on the AMD/Intel targets and currently costs about 106 MB.
+
+### Foundation alternatives considered
+
+| Foundation | Result | Reason |
+| --- | --- | --- |
+| `ghcr.io/ublue-os/kinoite-main:44` | Recommend | Actively consumed by Aurora/Bazzite, uses a standard Fedora kernel with the Universal Blue signing and akmod pipeline, and retains the desktop integration we actually need. |
+| `ghcr.io/blue-build/base-images/fedora-kinoite:44` | Defer | Attractive in principle, but its maintainers are still publicly defining support scope and it introduces BlueBuild's separate kernel-signing key. It is built from the same experimental Fedora desktop OCI source, so it does not currently buy a more official foundation. |
+| `quay.io/fedora-ostree-desktops/kinoite:44` | Do not use directly | This is an unofficial experimental desktop OCI source. Using it directly makes Vimmite3 own codecs, image update behavior, kernel-module signing, and other integration without removing the underlying stability concern. |
+| `quay.io/fedora/fedora-bootc:44` | Long-term candidate, not now | This is an official stable bootc base, but it contains no desktop. Building and maintaining KDE Atomic semantics from it would substantially increase R&D before any user-facing requirement is restored. |
+
+Sources:
+
+- [Universal Blue `main` repository](https://github.com/ublue-os/main)
+- [Universal Blue rationale for retaining `kinoite-main`](https://github.com/ublue-os/main/issues/927)
+- [BlueBuild base images](https://github.com/blue-build/base-images)
+- [BlueBuild base-image support discussion](https://github.com/blue-build/base-images/issues/13)
+- [BlueBuild image classification](https://github.com/blue-build/workshop/blob/main/src/data/images.ts)
+- [BlueBuild akmods module](https://blue-build.org/reference/modules/akmods/)
+
+## Shared image layers
+
+The portable image should be composed in small declarative groups. These are
+conceptual boundaries first; exact file names can be chosen during the rewrite.
+
+### 1. Desktop and hardware baseline
+
+- KDE Plasma from Kinoite.
+- Firefox retained from the base.
+- AMD and Intel Mesa/Vulkan/video acceleration supplied by the base.
+- Standard Fedora/Universal Blue kernel; no Bazzite/OGC kernel.
+- `steam-devices` for maintained controller access rules.
+- Upstream `hid_playstation` for the primary DualShock-compatible receiver.
+- Upstream Bluetooth HID support for Xbox controllers.
+- No `xone` module because the Microsoft USB/RF adapter is not used.
+- No global GPU tuning or `gpu_device=0` GameMode configuration.
+- Remove the standalone `nvidia-gpu-firmware` package after a build-time
+  dependency check confirms it remains unneeded.
+
+### 2. Required DisplayLink capability
+
+The current system has all three parts of a DisplayLink stack:
+
+- Synaptics' proprietary `DisplayLinkManager` userspace from the `displaylink`
+  RPM;
+- `libevdi`;
+- an `evdi` module built and signed for the exact current kernel.
+
+The third display cannot be treated as ordinary Thunderbolt/USB-C display
+output. The implemented development design:
+
+1. installs Fedora's kernel-devel and Negativo17's `akmod-evdi` only while the
+   image is being built;
+2. compiles and verifies an EVDI RPM against the exact image kernel, then removes
+   the source akmod and build dependencies;
+3. installs the matching `displaylink`/`libevdi` userspace packages and ships the
+   driver in the common image;
+4. keeps `displaylink.service` disabled by default so machines without the dock
+   do not load `evdi` or run a proprietary daemon unnecessarily; and
+5. enables the service through a documented per-machine post-install command on
+   the dock host.
+
+The image build fails if the compiled module does not match the base kernel.
+The resulting module is currently unsigned, so the development image requires
+Secure Boot to remain disabled until a deliberate signing/enrollment design is
+implemented. This is a release blocker for Secure Boot targets, not a hidden
+assumption.
+
+### 3. Gaming baseline
+
+Recommended host packages:
+
+- native Steam;
+- `steam-devices`;
+- `gamemode`;
+- `mangohud` (including the required 32-bit library path);
+- AMD and Intel 64-bit and 32-bit Vulkan drivers already selected by the base.
+
+Fedora 44 publishes GameMode, MangoHud, Gamescope, and `steam-devices` directly.
+Steam itself is nonfree. The selected `kinoite-main` base already enables its
+Fedora Multimedia repository, which supplies the native Steam package and its
+multilib dependencies. Vimmite3 uses that inherited repository and adds no
+gaming or Nvidia repository of its own.
+
+Native Steam is the initial recommendation because it most closely matches the
+working Bazzite arrangement and keeps host GameMode, MangoHud, external game
+drives, and Lossless Scaling integration straightforward. Flatpak Steam remains
+a viable fallback, but it requires runtime-version-matched Vulkan extensions
+and additional filesystem/environment overrides for Lossless Scaling.
+
+Gamescope is deliberately excluded. Its integration and testing cost is not
+justified by the current requirements, and it is not required to launch Steam
+on Plasma.
+
+Required Flatpaks in this layer:
+
+- ProtonPlus;
+- Bottles.
+
+Lossless Scaling requires the purchased Windows application in the Steam
+library and the `lsfg-vk` Vulkan layer. The development image installs upstream
+`lsfg-vk` 1.0.0 from its exact release URL after verifying a pinned SHA-256
+digest. It never follows an unpinned `latest` asset.
+
+Sources:
+
+- [Fedora `steam-devices`](https://packages.fedoraproject.org/pkgs/steam-devices/steam-devices/)
+- [Fedora Gamescope](https://packages.fedoraproject.org/pkgs/gamescope/gamescope/)
+- [Fedora MangoHud](https://packages.fedoraproject.org/pkgs/mangohud/mangohud/)
+- [Fedora GameMode](https://packages.fedoraproject.org/pkgs/gamemode/gamemode/)
+- [`lsfg-vk` installation guide](https://github.com/PancakeTAS/lsfg-vk/wiki/Installation-Guide)
+
+### 4. Virtualization baseline
+
+Keep the virt-manager Flatpak as the GUI; its current sandbox already has access
+to `/run/libvirt` and the per-user libvirt runtime directory. Add an actual host
+backend to the image:
+
+- `qemu-kvm`;
+- `libvirt-daemon-kvm`;
+- `libvirt-daemon-config-network`;
+- `libvirt-client`;
+- `virt-install`;
+- `edk2-ovmf`;
+- `swtpm`.
+
+Use Fedora/libvirt's modular socket-activated daemons rather than copying
+Bazzite's one-shot legacy `libvirtd.service` workaround. Enable the required
+QEMU, network, storage, secret, and node-device sockets declaratively. A
+post-install command can add the invoking user to `libvirt`, start the default
+NAT network if desired, and run a small connection/VM-capability test.
+
+Sources:
+
+- [libvirt modular daemons](https://libvirt.org/daemons.html)
+- [`virtqemud` manual](https://www.libvirt.org/manpages/virtqemud.html)
+
+### 5. Applications and developer environment
+
+- Keep the current declared Flatpaks.
+- Add Brave, ProtonPlus, Bazaar, and virt-manager to the declared Flatpak set.
+- Keep Lutris and Heroic out of the image; Bazaar can install them later.
+- Keep Zed as a Flatpak.
+- Keep Vim, Neovim, Git, Zsh, and the selected terminal utilities on the host.
+- Keep Python, Go, and Rust toolchains in Distrobox rather than the host image.
+
+Flatpaks should remain system-scoped so the required application set is
+available to every user. The user-scoped Flathub remote can remain available for
+optional applications. BlueBuild's current `default-flatpaks` module reconciles
+the declared list at boot, so removals from that list must be intentional.
+
+### 6. Shell design
+
+Install Zsh in every image and provide an idempotent `ujust setup-zsh` command
+that installs Zim in the invoking user's home from a pinned version. It must not
+overwrite an existing `.zshrc` without explicit confirmation.
+
+Universal Blue removes `chsh` deliberately because rolling back to an image
+without the selected shell can make login fail. Vimmite3 should not silently
+restore `chsh`. The post-install command can either configure Konsole to launch
+Zsh (safest) or, after warning about the rollback constraint, use `usermod` to
+make the image-baked `/usr/bin/zsh` the login shell. The latter is appropriate
+only while every retained deployment includes Zsh.
+
+### 7. Fonts and copied configuration
+
+- Install Fira Code and JetBrains Mono Nerd Fonts from pinned artifacts with
+  checksums. BlueBuild's convenience font module always fetches the latest
+  release, so it is not the reproducible choice here.
+- Keep the corrected Vesktop microphone-volume block in the image after the
+  live test remains stable.
+- Keep the HyperX source at 90% through a user-session rule/service that selects
+  the device by stable properties rather than a transient PipeWire object ID.
+- Retain `hid_apple fnmode=2` only after confirming it is actually wanted on all
+  target systems.
+- Do not copy the old global low-latency PipeWire quantum until its benefit and
+  suspend/power cost are measured.
+
+## Post-install profiles
+
+The common image should expose explicit, reversible `ujust` commands rather
+than guessing hardware at image-build time.
+
+| Profile | Intended behavior |
+| --- | --- |
+| `setup-zsh` | Install pinned Zim user state and select the requested shell behavior. |
+| `displaylink` | Enable or disable DisplayLink on the dock host and report the exact `evdi` module state. |
+| `setup-ai-max` | On the exact GMKtec AI MAX host only, opt into or undo the former large-memory values while removing `iommu=off`; clearly warn that `amdgpu.gttsize` is deprecated. |
+| `automount` | Opt into Universal Blue's labeled internal Btrfs/ext4 drive automount service; disabled elsewhere. |
+| `setup-virtualization` | Prepare libvirt user access, default network, storage paths, and a backend test. |
+| `install-streaming` | Install Moonlight, Sunshine, or both as user Flatpaks and run Sunshine's required host integration. |
+| `ssh-server` | Enable or disable OpenSSH together with its firewalld service. |
+| `wake-on-lan` | Configure magic-packet WOL on an explicitly selected NetworkManager Ethernet connection. |
+
+Machine-specific commands must print the changes they will make, be safe to
+rerun, and provide a matching status or undo path where practical.
+
+## Rollback and storage model
+
+- Rely on bootc/rpm-ostree deployments for operating-system rollback. A failed
+  update retains the previous deployment as a bootloader entry and can be made
+  the default with `rpm-ostree rollback`.
+- Keep the installer/default Btrfs layout unless testing identifies a concrete
+  reason to customize it.
+- Do not claim that an OS deployment rollback restores `/var` or home data; it
+  does not. Personal-data backup/snapshot tooling remains a separate decision.
+- Do not port Vimmora's mutable-root Snapper setup into the image.
+
+Source: [rpm-ostree administrator handbook](https://coreos.github.io/rpm-ostree/administrator-handbook/)
+
+## Proposed acceptance gates before replacing the base
+
+1. Build the proposed Fedora 44 image in CI with no Nvidia-specific packages or
+   repositories and inspect its package manifest.
+2. Verify the `evdi` module version exactly matches the image kernel. Keep
+   Secure Boot disabled during this unsigned prototype and track signing as a
+   separate release gate.
+3. Boot a temporary deployment on the Ryzen AI MAX host without applying any
+   shared kernel arguments.
+4. Test the HP dock at three displays, including disconnect/reconnect, reboot,
+   suspend/resume, and login/logout.
+5. Test native Steam, MangoHud, GameMode, ProtonPlus, Bottles, the game drive,
+   and the DualShock-compatible receiver before adding optional gaming pieces.
+6. Test virt-manager against `qemu:///system`, a UEFI VM, a TPM-backed VM, NAT,
+   shutdown, and resume.
+7. Repeat a reduced hardware suite on the Ryzen 6550U/Radeon 660M and Intel
+   Core Ultra/Arc systems.
+8. Build and test the installer, including the reported post-install grey-screen
+   case and the first reboot, before declaring the old installer replaced.

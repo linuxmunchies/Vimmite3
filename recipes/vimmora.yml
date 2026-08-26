@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+
+name: vimmite3-kinoite
+description: Portable AMD/Intel KDE Atomic image for gaming and workstation use.
+
+base-image: ghcr.io/ublue-os/kinoite-main
+image-version: 44
+
+modules:
+  - from-file: modules/hardware.yml
+  - from-file: modules/packages.yml
+  - from-file: modules/gaming.yml
+  - from-file: modules/virtualization.yml
+  - from-file: modules/configuration.yml
+  - from-file: modules/flatpaks.yml
+  - type: signing

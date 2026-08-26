@@ -1,43 +1,64 @@
-# Vimmite2 &nbsp; [![bluebuild build badge](https://github.com/linuxmunchies/vimmite2/actions/workflows/build.yml/badge.svg)](https://github.com/linuxmunchies/vimmite2/actions/workflows/build.yml)
+# Vimmite3
 
-See the [BlueBuild docs](https://blue-build.org/how-to/setup/) for quick setup instructions for setting up your own repository based on this template.
+Vimmite3 is a BlueBuild image for a portable AMD/Intel KDE Atomic workstation.
+It is intended to retain the useful gaming and desktop behavior of the previous
+Bazzite-based image while using Universal Blue's standard Fedora kernel and a
+smaller, explicit feature set.
 
-After setup, it is recommended you update this README to describe your custom image.
+## Status
 
-## Installation
+The Kinoite-based image is under development and is **not ready for a rebase or
+physical installation yet**. The existing `recipes/recipe.yml` Bazzite image is
+retained as a fallback while `recipes/vimmora.yml` is built and tested.
 
-> [!WARNING]  
-> [This is an experimental feature](https://www.fedoraproject.org/wiki/Changes/OstreeNativeContainerStable), try at your own discretion.
+The development image currently includes:
 
-To rebase an existing atomic Fedora installation to the latest build:
+- KDE Plasma, Firefox, and Universal Blue's Fedora 44 Kinoite baseline;
+- AMD and Intel graphics support only;
+- native Steam, GameMode, MangoHud, ProtonPlus, Bottles, and Lossless Scaling;
+- controller rules for Steam Input and upstream PlayStation/Bluetooth drivers;
+- a QEMU/libvirt backend and the virt-manager Flatpak;
+- DisplayLink userspace plus EVDI compiled for the exact image kernel;
+- Zsh/Zim setup, Vim, Neovim, Zed, Nerd Fonts, and the required Flatpaks; and
+- opt-in DisplayLink, drive automount, streaming, SSH, Wake-on-LAN, and Ryzen AI
+  MAX host profiles.
 
-- First rebase to the unsigned image, to get the proper signing keys and policies installed:
-  ```
-  rpm-ostree rebase ostree-unverified-registry:ghcr.io/linuxmunchies/vimmite2:latest
-  ```
-- Reboot to complete the rebase:
-  ```
-  systemctl reboot
-  ```
-- Then rebase to the signed image, like so:
-  ```
-  rpm-ostree rebase ostree-image-signed:docker://ghcr.io/linuxmunchies/vimmite2:latest
-  ```
-- Reboot again to complete the installation
-  ```
-  systemctl reboot
-  ```
+Gamescope, Nvidia packages/configuration, Lutris, and Heroic are intentionally
+not part of this image.
 
-The `latest` tag will automatically point to the latest build. That build will still always use the Fedora version specified in `recipe.yml`, so you won't get accidentally updated to the next major version.
+## Build locally
 
-## ISO
-
-If build on Fedora Atomic, you can generate an offline ISO with the instructions available [here](https://blue-build.org/how-to/generate-iso/#_top). These ISOs cannot unfortunately be distributed on GitHub for free due to large sizes, so for public projects something else has to be used for hosting.
-
-## Verification
-
-These images are signed with [Sigstore](https://www.sigstore.dev/)'s [cosign](https://github.com/sigstore/cosign). You can verify the signature by downloading the `cosign.pub` file from this repo and running the following command:
+Validate and build the development recipe without signing:
 
 ```bash
-cosign verify --key cosign.pub ghcr.io/linuxmunchies/vimmite2
+bluebuild validate recipes/vimmora.yml
+bluebuild build --no-sign recipes/vimmora.yml
+```
+
+The GitHub workflow builds both recipes during the migration. Image signing is
+handled by the existing `SIGNING_SECRET` repository secret.
+
+## Important DisplayLink limitation
+
+Universal Blue currently does not publish its EVDI `extra` kmod for the standard
+`main` kernel. Vimmite3 therefore compiles Negativo17's EVDI akmod during the
+image build and discards the build toolchain afterward. The resulting module is
+kernel-matched but is currently unsigned, so the development image requires
+Secure Boot to remain disabled until a deliberate signing/enrollment design is
+implemented and tested.
+
+## Documentation
+
+- [Investigation and decisions](docs/investigation.md)
+- [Architecture](docs/architecture-proposal.md)
+- [Vimmora migration inventory](docs/vimmora-migration.md)
+- [Post-install profiles](docs/post-install.md)
+- [Physical test checklist](docs/test-checklist.md)
+
+## Image verification
+
+Published images use Sigstore/cosign signing. Verify one with:
+
+```bash
+cosign verify --key cosign.pub ghcr.io/linuxmunchies/vimmite3-kinoite
 ```

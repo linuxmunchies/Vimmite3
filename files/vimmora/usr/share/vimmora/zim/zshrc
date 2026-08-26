@@ -1,0 +1,17 @@
+# Vimmora Zim bootstrap. This file is copied to ~/.zshrc only if the user does
+# not already have one.
+setopt HIST_IGNORE_ALL_DUPS
+bindkey -e
+WORDCHARS=${WORDCHARS//[\/]}
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
+
+ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
+ZIM_CONFIG_FILE=${ZDOTDIR:-${HOME}}/.zimrc
+
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZIM_CONFIG_FILE} ]]; then
+  source /usr/share/vimmora/zim/zimfw.zsh init
+fi
+
+source ${ZIM_HOME}/init.zsh
+

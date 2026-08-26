@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly HYPERX_NODE_MARKER='alsa_input.usb-HP__Inc_HyperX_Cloud_Alpha_Wireless_'
+
+for _attempt in {1..20}; do
+    source_id="$(
+        wpctl status -n 2>/dev/null |
+            awk -v marker="${HYPERX_NODE_MARKER}" '
+                index($0, marker) {
+                    for (field = 1; field <= NF; field++) {
+                        if ($field ~ /^[0-9]+\.$/) {
+                            sub(/\.$/, "", $field)
+                            print $field
+                            exit
+                        }
+                    }
+                }
+            '
+    )"
+
+    if [[ -n "${source_id}" ]]; then
+        wpctl set-volume "${source_id}" 0.90
+        exit 0
+    fi
+
+    sleep 0.5
+done
+
+echo "HyperX Cloud Alpha Wireless microphone source was not available" >&2
