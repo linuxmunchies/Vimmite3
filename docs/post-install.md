@@ -21,6 +21,19 @@ continue to include `/usr/bin/zsh` for rollback-safe login.
 NAT network, and adds the current user to `libvirt`. Log out and back in before
 opening virt-manager.
 
+## Lossless Scaling
+
+The `lsfg-vk` layer is installed, but frame generation still requires the
+purchased Windows Lossless Scaling application in the native Steam library.
+Use `lsfg-vk-ui` to select its `Lossless.dll` and configure game profiles.
+
+The upstream default configuration includes a `vkcube` test profile. Until the
+DLL is installed, bypass that profile when checking the baseline Vulkan stack:
+
+```bash
+DISABLE_LSFG=1 vkcube
+```
+
 ## HP DisplayLink dock
 
 ```bash
