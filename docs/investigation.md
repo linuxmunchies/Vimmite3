@@ -142,6 +142,28 @@ Decisions:
 - Other AMD and Intel machines keep upstream kernel memory/IOMMU defaults unless
   testing demonstrates a concrete need.
 
+Live comparison on the existing Vimmite2 AI MAX host:
+
+- An `iommu=off` boot failed XDNA initialization with "Running without IOMMU
+  not supported", produced an MT7925 DMA-address overflow, and ended with Wi-Fi
+  hardware initialization failing.
+- After changing the existing host to `iommu=on`, the next boot created 40 IOMMU
+  groups, initialized `amdxdna`, exposed `/dev/accel/accel0`, and initialized the
+  MT7925 Wi-Fi device without those DMA errors.
+- DisplayLink is active and Plasma currently reports all three displays connected
+  and enabled. This is strong evidence for keeping IOMMU enabled, but it does not
+  replace repeated dock and suspend/resume testing on Vimmite3.
+
+## Flatpak notification finding
+
+The existing Vimmite2 deployment runs `user-flatpak-setup.timer` 30 seconds
+after the user session starts. Its generated configuration declares a user
+Flathub remote with an empty install list and notifications enabled, producing
+the repeated "finished automated installation of 0 user Flatpaks" message.
+Vimmite3 retains the user Flathub remote for optional applications but explicitly
+sets `notify: false` for that empty user scope. System Flatpak reconciliation and
+its useful notifications remain enabled.
+
 ## DisplayLink findings
 
 - The working host contains the proprietary `displaylink` 6.3 userspace daemon,

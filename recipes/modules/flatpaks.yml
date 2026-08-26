@@ -44,7 +44,9 @@ configurations:
       - it.mijorus.gearlever
       - com.github.zocker_160.SyncThingy
 
-  - scope: user
+  # Keep a user Flathub remote for optional applications without showing a
+  # misleading "installed 0 user Flatpaks" notification after every login.
+  - notify: false
+    scope: user
     repo:
       title: Flathub (user)
-
