@@ -3,7 +3,7 @@
 set -euo pipefail
 
 kernel_version="$(rpm -q kernel --queryformat '%{VERSION}-%{RELEASE}.%{ARCH}')"
-kernel_devel="kernel-devel-${kernel_version}"
+kernel_devel="kernel-devel-uname-r = ${kernel_version}"
 
 # Install build inputs separately. Fedora's ostree-specific akmod RPM hook
 # expects /var to be read-only, which is not true inside a container build.
